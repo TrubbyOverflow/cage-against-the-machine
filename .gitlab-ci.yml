@@ -1,5 +1,5 @@
 ---
-image: docker:19.03-ce-git
+image: docker:19.03-git
 services:
     - docker:19.03-dind
 stages:
