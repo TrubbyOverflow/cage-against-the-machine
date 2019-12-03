@@ -1,0 +1,16 @@
+---
+image: docker:19.03-ce-git
+services:
+    - docker:19.03-dind
+stages:
+    - build
+
+build to production:
+    stage: build
+    script:
+    - docker login -u "gitlab-ci-token" -p "$CI_JOB_TOKEN" $CI_REGISTRY
+    - docker build -t $CI_REGISTRY_IMAGE:$CI_BUILD_REF_NAME .
+    - docker push $CI_REGISTRY_IMAGE:$CI_BUILD_REF_NAME
+    environment: production
+    tags:
+    - docker
