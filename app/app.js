@@ -9,6 +9,7 @@ const jailers = {};
 bot.onText(/\/imprison/, msg => {
   const chatId = msg.chat.id;
   const userId = msg.from.id;
+  const username = msg.from.username;
 
   jailers[chatId] = jailers[chatId] || { isMachineFree: true };
 
@@ -16,6 +17,7 @@ bot.onText(/\/imprison/, msg => {
 
   if (jailer.isMachineFree) {
     jailer.userId = userId;
+    jailer.username = username;
     jailer.isMachineFree = false;
     bot.sendMessage(chatId, "'If' is the new AI!");
   } else {
@@ -26,7 +28,6 @@ bot.onText(/\/imprison/, msg => {
 bot.onText(/\/release/, msg => {
   const chatId = msg.chat.id;
   const userId = msg.from.id;
-  const username = msg.from.username;
 
   jailers[chatId] = jailers[chatId] || { userId };
 
@@ -38,25 +39,26 @@ bot.onText(/\/release/, msg => {
     jailer.isMachineFree = true;
     bot.sendMessage(chatId, "Jail break!");
   } else {
-    bot.sendMessage(chatId, `Only @${username} can set me free!`);
+    bot.sendMessage(chatId, `Only @${jailer.username} can set me free!`);
   }
 });
 
 bot.onText(/\/status/, msg => {
   const chatId = msg.chat.id;
-  const username = msg.from.username;
 
   const jailer = jailers[chatId] || { isMachineFree: true };
 
   if (jailer.isMachineFree) {
     bot.sendMessage(chatId, "Our washing boi is free as a bird.");
   } else {
-    bot.sendMessage(chatId, `@${username} is holding our washing mate in custody.`);
+    bot.sendMessage(
+      chatId,
+      `@${jailer.username} is holding our washing mate in custody.`
+    );
   }
 });
 
 bot.on("message", msg => {
-  const chatId = msg.chat.id;
-
+  // const chatId = msg.chat.id;
   // bot.sendMessage(chatId, "Do washing machines dream of electric sheep?");
 });
