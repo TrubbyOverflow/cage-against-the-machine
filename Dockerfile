@@ -8,4 +8,8 @@ RUN npm install
 
 COPY . .
 
+ARG TELEGRAM_TOKEN
+
+ENV TELEGRAM_TOKEN=$TELEGRAM_TOKEN
+
 CMD [ "node", "app/app.js" ]
