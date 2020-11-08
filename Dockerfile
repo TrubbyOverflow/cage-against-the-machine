@@ -1,10 +1,12 @@
-FROM node:12
+FROM gradle:6.6.1
 
 WORKDIR /usr/src/app
 
-COPY package*.json ./
+COPY settings.gradle.kts ./
 
-RUN npm install
+COPY build.gradle.kts ./
+
+RUN gradle build || return 0
 
 COPY . .
 
@@ -12,4 +14,4 @@ ARG TELEGRAM_TOKEN
 
 ENV TELEGRAM_TOKEN=$TELEGRAM_TOKEN
 
-CMD [ "node", "app/app.js" ]
+CMD [ "gradle", "run" ]
