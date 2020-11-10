@@ -1,4 +1,4 @@
-FROM gradle:6.6.1
+FROM gradle:6.7-jdk11-openj9
 
 WORKDIR /usr/src/app
 

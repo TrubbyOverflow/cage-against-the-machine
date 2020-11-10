@@ -5,18 +5,60 @@ import com.github.kotlintelegrambot.bot
 import com.github.kotlintelegrambot.dispatch
 import com.github.kotlintelegrambot.dispatcher.command
 import com.github.kotlintelegrambot.entities.Update
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
+import java.nio.file.Files
+import java.nio.file.Paths
 
+const val JAILERS_PATH = "jailers.json"
+
+@Serializable
 data class Jailer(
-        var userId: Long? = null,
-        var username: String? = null,
-        var isMachineFree: Boolean = false
+        val userId: Long? = null,
+        val username: String? = null
 )
+
+fun writeTextToFile(path: String, content: String) {
+    val filePath = Paths.get(path)
+
+    if (Files.notExists(filePath)) {
+        Files.createFile(filePath)
+    }
+
+    Files.writeString(filePath, content)
+}
+
+fun readTextFromFile(path: String): String? {
+    val pathObj = Paths.get(path)
+
+    if (Files.notExists(pathObj)) {
+        return null
+    }
+
+    return Files.readAllLines(pathObj).reduce { acc, s -> acc + s }
+}
+
+fun saveJailersByChatId(jailersByChatId: Map<Long, Jailer?>) {
+    val content = Json.encodeToString(jailersByChatId)
+
+    writeTextToFile(JAILERS_PATH, content)
+}
+
+fun retrieveJailersByChatId(): MutableMap<Long, Jailer?> {
+    val content = readTextFromFile(JAILERS_PATH)
+
+    return content?.let {
+        Json.decodeFromString(content)
+    } ?: mutableMapOf()
+}
 
 fun main() {
     val bot = bot {
         token = System.getenv("TELEGRAM_TOKEN") ?: ""
 
-        val jailersByChatId = mutableMapOf<Long, Jailer?>()
+        val jailersByChatId = retrieveJailersByChatId()
 
         dispatch {
 
@@ -33,9 +75,9 @@ fun main() {
                 } ?: run {
                     jailersByChatId[chatId] = Jailer(
                             userId = userId,
-                            username = username,
-                            isMachineFree = false
+                            username = username
                     )
+                    saveJailersByChatId(jailersByChatId)
                     bot.sendMessage(chatId, "'If' is the new AI!")
                 }
             }
@@ -50,6 +92,7 @@ fun main() {
                 jailersByChatId[chatId]?.let {
                     if (it.userId == userId) {
                         jailersByChatId[chatId] = null
+                        saveJailersByChatId(jailersByChatId)
                         bot.sendMessage(chatId, "Jail break!")
                     } else {
                         bot.sendMessage(chatId, "Only @${it.username} can set me free!")

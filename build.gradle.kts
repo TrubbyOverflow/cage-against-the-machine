@@ -2,7 +2,8 @@ val kotlinTelegramBotVersion by extra { "5.0.0" }
 val exposedVersion by extra { "0.24.1" }
 
 plugins {
-    id("org.jetbrains.kotlin.jvm") version "1.4.10"
+    kotlin("jvm") version "1.4.10"
+    kotlin("plugin.serialization") version "1.4.10"
 
     application
 }
@@ -23,11 +24,13 @@ dependencies {
     implementation("org.jetbrains.exposed:exposed-dao:$exposedVersion")
     implementation("org.jetbrains.exposed:exposed-jdbc:$exposedVersion")
 
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.0.1")
+
     testImplementation("org.jetbrains.kotlin:kotlin-test")
 
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit")
 }
 
 application {
-    mainClassName = "dev.knonm.catm.AppKt"
+    mainClass.value("dev.knonm.catm.AppKt")
 }
